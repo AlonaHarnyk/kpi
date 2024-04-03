@@ -1,37 +1,31 @@
-import styles from './Modal.module.css'
+import styles from "./Modal.module.css";
 
-import { Component } from "react";
+import { useEffect } from "react";
 
-class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener("keydown", this.closeByEsc);
-  }
+const Modal = ({ currentPoster: { src, alt }, closeModal }) => {
+  useEffect(() => {
+    const closeByEsc = ({ code }) => {
+      if (code === "Escape") {
+        closeModal();
+      }
+    };
+    window.addEventListener("keydown", closeByEsc);
 
-  componentWillUnmount() {
-    window.removeEventListener("keydown", this.closeByEsc);
-  }
+    return () => {
+      window.removeEventListener("keydown", closeByEsc);
+    };
+  }, [closeModal]);
 
-  closeByEsc = ({ code }) => {
-    if (code === "Escape") {
-      this.props.closeModal();
-    }
-  };
-
-  render() {
-    const {
-      currentPoster: { src, alt },
-      closeModal,
-    } = this.props;
-
-    return (
+  return (
+    <div>
       <div>
-        <div>
-          <button onClick={closeModal} className={styles.text}>Close</button>
-          <img alt={alt} src={`https://image.tmdb.org/t/p/w500${src}`} />
-        </div>
+        <button onClick={closeModal} className={styles.text}>
+          Close
+        </button>
+        <img alt={alt} src={`https://image.tmdb.org/t/p/w500${src}`} />
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default Modal;

@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState, useEffect } from "react";
 
 import { MoviesGallery } from "./components/MoviesGallery/MoviesGallery";
 import Modal from "./components/Modal/Modal";
@@ -9,76 +9,65 @@ import { Notification } from "./components/Notification/Notification";
 import { moviesMapper } from "./utils/mapper";
 import { fetchMovies } from "./services/moviesApi";
 
-class App extends Component {
-  state = {
-    movies: [],
-    currentPoster: null,
-    isMoviesShown: false,
-    isLoading: false,
-    error: "",
-  };
+const App = () => {
+  const [movies, setMovies] = useState([]);
+  const [currentPoster, setCurrentPoster] = useState(null);
+  const [isMoviesShown, setIsMoviesShown] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  componentDidUpdate(_, prevState) {
-    const { isMoviesShown } = this.state;
-    if (isMoviesShown && isMoviesShown !== prevState.isMoviesShown) {
-      this.getMovies();
+  useEffect(() => {
+    if (isMoviesShown) {
+      setIsLoading(true);
+      fetchMovies()
+        .then(({ data: { results } }) => {
+          setMovies(moviesMapper(results));
+          setError("");
+        })
+        .catch((error) => setError(error.message))
+        .finally(() => setIsLoading(false));
     }
 
-    if (!isMoviesShown && isMoviesShown !== prevState.isMoviesShown) {
-      this.setState({ error: "", movies: [] });
+    if (!isMoviesShown) {
+      setMovies([]);
+      setError("");
     }
-  }
+  }, [isMoviesShown]);
 
-  getMovies = () => {
-    this.setState({ isLoading: true });
-    fetchMovies()
-      .then(({ data: { results } }) => {
-        this.setState({ movies: moviesMapper(results), error: "" });
-      })
-      .catch((error) => this.setState({ error: error.message }))
-      .finally(() => this.setState({ isLoading: false }));
+  const deleteMovie = (moviedId) => {
+    setMovies((prevMovies) => prevMovies.filter(({ id }) => id !== moviedId));
   };
 
-  deleteMovie = (moviedId) => {
-    this.setState((prevState) => ({
-      movies: prevState.movies.filter(({ id }) => id !== moviedId),
-    }));
+  const openModal = (poster) => {
+    setCurrentPoster(poster);
   };
 
-  openModal = (poster) => {
-    this.setState({ currentPoster: poster });
+  const closeModal = () => {
+    setCurrentPoster(null);
   };
 
-  closeModal = () => {
-    this.setState({ currentPoster: null });
+  const toggleMoviesVisibility = () => {
+    setIsMoviesShown((prevIsMoviesShown) => !prevIsMoviesShown);
   };
 
-  toggleMoviesVisibility = () => {
-    this.setState((prevState) => ({ isMoviesShown: !prevState.isMoviesShown }));
-  };
-
-  render() {
-    const { movies, currentPoster, isMoviesShown, isLoading, error } =
-      this.state;
-    return (
-      <>
-        <Button
-          clickHandler={this.toggleMoviesVisibility}
-          text={isMoviesShown ? "Hide movies" : "Show movies"}
-        />
-        {isLoading && <Loader />}
-        {error && <Notification text={error} error />}
-        {/* <MoviesGallery
-          movies={movies}
-          deleteMovie={this.deleteMovie}
-          openModal={this.openModal}
-        />
-        {currentPoster && (
-          <Modal currentPoster={currentPoster} closeModal={this.closeModal} />
-        )} */}
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <Button
+        clickHandler={toggleMoviesVisibility}
+        text={isMoviesShown ? "Hide movies" : "Show movies"}
+      />
+      {isLoading && <Loader />}
+      {error && <Notification text={error} error />}
+      <MoviesGallery
+        movies={movies}
+        deleteMovie={deleteMovie}
+        openModal={openModal}
+      />
+      {currentPoster && (
+        <Modal currentPoster={currentPoster} closeModal={closeModal} />
+      )}
+    </>
+  );
+};
 
 export default App;
