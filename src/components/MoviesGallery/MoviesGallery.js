@@ -1,4 +1,6 @@
+
 export const MoviesGallery = ({ movies, deleteMovie, openModal }) => {
+
   return (
     <ul>
       {movies.map(({ title, votes, id, poster }) => {
