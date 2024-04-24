@@ -6,6 +6,7 @@ export const Navigation = () => {
             <ul>
                 <li><NavLink to='/'>Home</NavLink></li>
                 <li><NavLink to='/events'>Events</NavLink></li>
+                <li><NavLink to='/search'>Search</NavLink></li>
             </ul>
         </nav>
     )

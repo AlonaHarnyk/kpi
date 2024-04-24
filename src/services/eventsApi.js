@@ -20,3 +20,13 @@ export async function fetchEvent(id) {
   });
   return data;
 }
+
+export async function fetchEventsByName(keyword) {
+  const { data } = await axios("events", {
+    params: {
+      apikey: KEY,
+      keyword,
+    },
+  });
+  return data._embedded.events;
+}
