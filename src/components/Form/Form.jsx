@@ -1,5 +1,4 @@
-import { nanoid } from "@reduxjs/toolkit";
-import { addUser } from "../../redux/users/usersSlice";
+import { addUser } from "../../redux/users/operations";
 import { useDispatch } from "react-redux";
 export const Form = () => {
   const dispatch = useDispatch();
@@ -8,10 +7,8 @@ export const Form = () => {
     e.preventDefault();
     const form = e.target;
     const newUser = {
-      id: nanoid(),
       name: form.elements.name.value,
-      age: form.elements.age.value,
-      status: "offline",
+      age: form.elements.age.value
     };
     dispatch(addUser(newUser));
     form.reset()
